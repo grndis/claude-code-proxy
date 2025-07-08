@@ -1103,15 +1103,24 @@ async def create_message(
         # Convert Anthropic request to LiteLLM format
         litellm_request = convert_anthropic_to_litellm(request)
         
-        # Determine which API key to use based on the model
+        # Determine which API key and base URL to use based on the model
         if request.model.startswith("openai/"):
             litellm_request["api_key"] = OPENAI_API_KEY
+            base_url = os.environ.get("OPENAI_BASE_URL")
+            if base_url:
+                litellm_request["base_url"] = base_url
             logger.debug(f"Using OpenAI API key for model: {request.model}")
         elif request.model.startswith("gemini/"):
             litellm_request["api_key"] = GEMINI_API_KEY
+            base_url = os.environ.get("GEMINI_BASE_URL")
+            if base_url:
+                litellm_request["base_url"] = base_url
             logger.debug(f"Using Gemini API key for model: {request.model}")
         else:
             litellm_request["api_key"] = ANTHROPIC_API_KEY
+            base_url = os.environ.get("ANTHROPIC_BASE_URL")
+            if base_url:
+                litellm_request["base_url"] = base_url
             logger.debug(f"Using Anthropic API key for model: {request.model}")
         
         # For OpenAI models - modify request format to work with limitations
